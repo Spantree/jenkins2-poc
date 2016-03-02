@@ -1,2 +1,5 @@
 ---
+- src: https://github.com/Spantree/ansible-role-jenkins
+  version: remotes/origin/feature/add-ajp-port-setup-support # see https://github.com/ansible/ansible/pull/10358#issuecomment-76541606 for format
+  name: spantree.jenkins 
 - src: ansiblebit.oracle-java
