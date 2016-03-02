@@ -17,7 +17,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "ansible_local" do |a|
     a.playbook = "#{PRJ_DIR}/ansible/playbook.yml"
     a.verbose = true
-    a.install = true
+    a.install = true #install ansible if not available
     a.galaxy_role_file = "#{PRJ_DIR}/ansible/galaxy.yml"
   end
 end
