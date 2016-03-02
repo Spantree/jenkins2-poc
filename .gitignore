@@ -1,1 +1,3 @@
 ansible/roles/ansiblebit*
+ansible/roles/geerlingguy*
+ansible/roles/spantree.jenkins
