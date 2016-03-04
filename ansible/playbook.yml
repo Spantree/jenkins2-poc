@@ -1,19 +1,19 @@
 ---
 - hosts: all
   sudo: true
+  vars_files:
+    - [ "vars/{{ ansible_os_family }}.yml" ]
   vars:
     oracle_java_set_as_default: yes
-    java_packages: # this is used by the role geerlingguy/java
-      - java-1.8.0-openjdk
-    jenkins_repo_url: http://pkg.jenkins-ci.org/redhat-rc/jenkins.repo
-    jekins_repo_key_url: http://pkg.jenkins-ci.org/redhat-rc/jenkins-ci.org.key
     jenkins_plugins:
       - git
       - ssh
       - workflow-aggregator
   roles:
-    - geerlingguy.java
-    - ansiblebit.oracle-java
-    - spantree.jenkins # this is a fork of the role geerlingguy/jenkins
+    - { role: geerlingguy.java }
+    - { role: ansiblebit.oracle-java }
+    - { role: spantree.jenkins } # this is a fork of the role geerlingguy/jenkins
   tasks:
     - selinux: policy=targeted state=permissive
+      when: ansible_os_family == "RedHat"
+
