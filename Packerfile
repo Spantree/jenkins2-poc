@@ -1,0 +1,88 @@
+{
+  "variables": {
+    "box_name": "centos7",
+    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "source_ami": "ami-6d1c2007",
+    "headless": "true",
+    "version": "1.0.0",
+    "build_number": "0",
+    "project_dir": "/usr/local/src/project",
+    "hostname": "default"
+  },
+  "builders": [
+    {
+      "name": "amazon-ebs",
+      "type": "amazon-ebs",
+
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+
+      "source_ami": "{{user `source_ami`}}",
+      "ami_description": "{{ user `box_name` }}-{{ user `version`}}-{{ user `build_number` }} centos 7 amd64 {{isotime | clean_ami_name}}",
+      "ami_name": "{{ user `box_name` }}-{{user `version`}}-{{ user `build_number` }}-base {{ user `git_commit`}}",
+
+      "instance_type": "c3.large",
+      "vpc_id": "vpc-905a39f5",
+      "subnet_id": "subnet-acc20887",
+      "region": "us-east-1",
+
+      "associate_public_ip_address": true,
+
+      "communicator": "ssh",
+      "ssh_pty": true,
+      "ssh_username": "centos",
+
+      "tags": {
+        "OS_Version": "CentOS",
+        "Release": "7.2",
+        "Vendor": "spantree",
+        "Name": "{{ user `box_name` }}-{{ user `version`}}-{{ user `build_number` }} {{ user `git_commit`}}",
+        "Version": "{{user `version`}}-{{ user `build_number` }} {{ user `git_commit`}}",
+        "Java": "oracle-jdk-8"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "shell/os-detect-setup.sh",
+        "shell/initial-setup.sh",
+        "shell/install-ansible.sh"
+      ],
+      "override": {
+        "amazon-ebs": {
+          "execute_command": "sudo -S bash {{.Path}}"
+        }
+      }
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "./ansible/playbook.yml",
+      "playbook_dir": "./ansible"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "yum update -y"
+      ],
+      "override": {
+        "amazon-ebs": {
+          "execute_command": "sudo -S bash {{.Path}}"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "shell/cleanup.sh"
+      ],
+      "override": {
+        "amazon-ebs": {
+          "execute_command": "sudo -S bash {{.Path}} {{ user `project_dir` }} centos"
+        }
+      }
+    }
+  ]
+}
